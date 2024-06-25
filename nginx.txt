@@ -1,0 +1,137 @@
+root@service-gateway:~# cat /opt/upward/etc/nginx.conf
+
+user  work work;
+worker_processes  2;
+worker_cpu_affinity auto 1010;
+
+#error_log  logs/error.log;
+#error_log  logs/error.log  notice;
+#error_log  logs/error.log  info;
+
+#pid        logs/nginx.pid;
+
+
+events {
+    worker_connections  1024;
+}
+
+
+http {
+    include       mime.types;
+    default_type  application/octet-stream;
+    lua_package_path "/opt/upward/lib/resty/?.lua;;";
+
+
+    #log_format  main  '$remote_addr - $remote_user [$time_local] "$request" '
+    #                  '$status $body_bytes_sent "$http_referer" '
+    #                  '"$http_user_agent" "$http_x_forwarded_for"';
+
+    log_format http_main escape=json '{'
+            '"time": "$time_iso8601",'
+            '"remote_addr": "$remote_addr",'
+            '"remote_port": "$remote_port",'
+            '"server_addr": "$server_addr",'
+            '"server_port": "$server_port",'
+            '"scheme": "$scheme",'
+            '"request": "$request",'
+            '"method": "$request_method",'
+            '"request_uri": "$request_uri",'
+            '"uri": "$uri",'
+            '"cookie": "$http_cookie",'
+            '"status": "$status",'
+            '"body": "$request_body",'
+            '"app": "$app"'
+            '}';
+
+    #access_log  logs/access.log  main;
+
+    sendfile        on;
+    #tcp_nopush     on;
+
+    #keepalive_timeout  0;
+    keepalive_timeout  65;
+
+    #gzip  on;
+
+
+    # another virtual host using mix of IP-, name-, and port-based configuration
+    #
+    #server {
+    #    listen       8000;
+    #    listen       somename:8080;
+    #    server_name  somename  alias  another.alias;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+
+    # HTTPS server
+    #
+    #server {
+    #    listen       443 ssl;
+    #    server_name  localhost;
+
+    #    ssl_certificate      cert.pem;
+    #    ssl_certificate_key  cert.key;
+
+    #    ssl_session_cache    shared:SSL:1m;
+    #    ssl_session_timeout  5m;
+
+    #    ssl_ciphers  HIGH:!aNULL:!MD5;
+    #    ssl_prefer_server_ciphers  on;
+
+    #    location / {
+    #        root   html;
+    #        index  index.html index.htm;
+    #    }
+    #}
+
+    include nginx.conf.d/*.http.conf;
+}
+
+stream {
+    log_format stream_main escape=json '{'
+            '"time": "$time_iso8601",'
+            '"remote_addr": "$remote_addr",'
+            '"remote_port": "$remote_port",'
+            '"server_addr": "$server_addr",'
+            '"server_port": "$server_port",'
+	    '"status": "$status",'
+	    '"bytes_sent": "$bytes_sent",'
+	    '"bytes_received": "$bytes_received",'
+            '"app": "$app"'
+            '}';
+    include nginx.conf.d/*.stream.conf;
+}
+
+
+
+root@service-gateway:~# ls -al /opt/upward/etc/nginx.conf
+nginx.conf          nginx.conf.bk       nginx.conf.d/       nginx.conf.default 
+
+
+
+root@service-gateway:~# ls -al /opt/upward/etc/nginx.conf.d/
+total 20
+drwxr-xr-x 2 root root 4096 Aug 10 00:03 .
+drwxr-xr-x 3 root root 4096 Aug 10 09:06 ..
+-rw-r--r-- 1 root root 1052 Jul 28 20:03 default.http.conf
+-rw-r--r-- 1 root root  229 Aug 10 00:03 rdp.stream.conf
+-rw-r--r-- 1 root root 1179 Aug  9 23:44 znqcalc.http.conf
+
+
+root@service-gateway:~# cat /opt/upward/etc/nginx.conf.d/rdp.stream.conf 
+server {
+    set $app "rdp-direct-ml-cuda-acc1";
+
+    access_log /opt/upward/var/log/nginx/rdp.access.log  stream_main;
+
+    listen 192.168.88.20:38901;
+    proxy_pass 192.168.3.61:3389;
+
+    allow 192.168.4.50;
+    deny all;
+}

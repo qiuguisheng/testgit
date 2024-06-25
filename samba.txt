@@ -1,0 +1,311 @@
+# 创建一个文件夹，把所有账号对应的文件夹都放入其中
+mkdir /home/samba
+
+# 创建公共文件夹
+mkdir /home/samba/公共文件
+
+# 创建 zhangsan 对应的文件夹
+mkdir /home/samba/张三
+
+# 创建 lisi 对应的文件夹
+mkdir /home/samba/李四
+
+# 创建 guest 对应的文件夹
+mkdir /home/samba/访客
+
+# 文件夹授权
+chown -R 777 /home/samba/
+
+# 1777 说明：所有用户都可以在这个目录下创建文件，
+# 但只能删除自己创建的文件(root除外)，这样可以对文件启到保护作用。
+chown -R 1777 /home/samba/公共文件
+
+
+
+# 创建分组
+sudo grpupadd admin # 管理员组
+sudo grpupadd personnel # 职员组
+sudo grpupadd guest # 访客组
+
+groupadd gcb
+groupadd yfb
+groupadd cwb
+groupadd zhb
+groupadd itb
+groupadd guest
+
+
+useradd  -s /sbin/nologin  -g yfb -d /upward/share/wangj wangj
+useradd  -s /sbin/nologin  -g yfb -d /upward/share/liuzl liuzl
+useradd  -s /sbin/nologin  -g yfb -d /upward/share/xutc xutc
+useradd  -s /sbin/nologin  -g gcb -d /upward/share/chenzc chenzc
+useradd  -s /sbin/nologin  -g gcb -d /upward/share/yanglw yanglw
+useradd  -s /sbin/nologin  -g gcb -d /upward/share/zhangzc zhangzc
+useradd  -s /sbin/nologin  -g cwb -d /upward/share/qiuyh qiuyh
+useradd  -s /sbin/nologin  -g zhb -d /upward/share/yangx yangx
+useradd  -s /sbin/nologin  -g zhb -d /upward/share/pany pany
+useradd  -s /sbin/nologin  -g zhb -d /upward/share/caoy caoy
+useradd  -s /sbin/nologin  -g zhb -d /upward/share/yangf yangf
+useradd  -s /sbin/nologin  -g zhb -d /upward/share/liuxk liuxk
+useradd  -s /sbin/nologin         -d /upward/share/xuho xuho
+
+
+useradd -g itb    -s /sbin/nologin  itb
+useradd -g guest  -s /sbin/nologin  guest
+
+
+
+groupadd yfb
+groupadd gcb
+groupadd itb
+groupadd cwb
+groupadd zhb
+
+
+
+
+# 创建账号，-s /sbin/nologin 为禁止用户登录
+sudo useradd -g admin -s /sbin/nologin admin
+sudo useradd -g personnel -s /sbin/nologin zhangsan
+sudo useradd -g personnel -s /sbin/nologin lisi
+sudo useradd -g guest -s /sbin/nologin guest
+
+
+
+sudo yum install samba
+
+
+sudo mkir /etc/samba/users
+
+
+ usershare allow guests = yes
+ # 在这个位置添加下面语句，引入用户配置文件
+ include = /etc/samba/users/%U.smb.conf
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ 
+ sudo vim /etc/samba/users/admin.smb.conf
+# 添加如下内容：
+
+[公共文件]
+    comment = 公共文件
+    path = /upward/share/public
+    public = yes
+    read list = @admin,@personnel
+    write list = @admin,@personnel
+[访客]
+    comment = 访客
+    path = /home/samba/访客
+    public = yes
+    admin users = @admin
+    read list = guest,@admin,@personnel
+    write list = guest,@admin,@personnel
+[张三]
+    comment = 张三
+    path = /home/samba/张三
+    public = no
+    printable = no
+    admin users = zhangsan
+    valid users = zhangsan,@admin
+    write list = zhangsan,@admin
+[李四]
+    comment = 李四
+    path = /home/samba/李四
+    public = no
+    printable = no
+    admin users = lisi
+    valid users = lisi,@admin
+    write list = lisi,@admin
+
+
+
+
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin wangj
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin xuho
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin chenzc
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin liuerer
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin fengwuwu
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin buliuliu
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin wangqiqi
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin zhengshiyuangong
+[root@samba-server ~]# useradd -d /upward/share -s /sbin/nologin shixisheng
+
+
+
+
+
+
+
+
+
+useradd -d /upward/share/wangj
+useradd -d /upward/share/liuzl
+useradd -d /upward/share/xutc
+useradd -d /upward/share/chenzc
+useradd -d /upward/share/yanglw
+useradd -d /upward/share/zhangzc
+useradd -d /upward/share/qiuyh
+useradd -d /upward/share/yangx
+useradd -d /upward/share/pany
+useradd -d /upward/share/caoy
+useradd -d /upward/share/yangf
+useradd -d /upward/share/liuxk
+useradd -d /upward/share/xuho
+
+
+
+
+[研发部]
+    comment = 研发部文件
+    path = /upward/share/yfb
+    public = yes
+    read list = xuho,@yfb
+    write list = xuho,@yfb
+	
+[工程部]
+    comment = 工程部文件
+    path = /upward/share/gcb
+    public = yes
+    read list = xuho,@gcb
+    write list = xuho,@gcb
+
+[综合部]
+    comment = 综合部文件
+    path = /upward/share/zhb
+    public = yes
+    read list =  xuho,@zhb
+    write list = xuho,@zhb
+	
+[财务部]
+    comment = 财务部文件
+    path = /upward/share/cwb
+    public = yes
+    read list = xuho,@cwb
+    write list = xuho,@cwb
+	
+[IT部]
+    comment = IT部文件
+    path = /upward/share/itb
+    public = yes
+    read list = xuho,@itb
+    write list = xuho,@itb
+	
+	
+for i in {1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013};do usermod -d /upward/share/ $i;done	
+
+
+
+uid=1001(wangj) gid=1002(yfb) groups=1002(yfb)
+uid=1002(liuzl) gid=1002(yfb) groups=1002(yfb)
+uid=1003(xutc) gid=1002(yfb) groups=1002(yfb)
+uid=1004(chenzc) gid=1001(gcb) groups=1001(gcb)
+uid=1005(yanglw) gid=1001(gcb) groups=1001(gcb)
+uid=1006(zhangzc) gid=1001(gcb) groups=1001(gcb)
+uid=1007(qiuyh) gid=1003(cwb) groups=1003(cwb)
+uid=1008(yangx) gid=1004(zhb) groups=1004(zhb)
+uid=1009(pany) gid=1004(zhb) groups=1004(zhb)
+uid=1010(caoy) gid=1004(zhb) groups=1004(zhb)
+uid=1011(yangf) gid=1004(zhb) groups=1004(zhb)
+uid=1012(liuxk) gid=1004(zhb) groups=1004(zhb)
+uid=1013(xuho) gid=1013(xuho) groups=1013(xuho)
+
+
+
+1001,1002,1003,1004,1005,1006,1007,1008,1009,1010,1011,1012,1013
+
+usermod -d /upward/share/
+
+usermod -d /upward/share/wangj   -u 1001
+usermod -d /upward/share/liuzl   -u 1002
+usermod -d /upward/share/xutc    -u 1003
+usermod -d /upward/share/chenzc  -u 1004
+usermod -d /upward/share/yanglw  -u 1005
+usermod -d /upward/share/zhangzc -u 1006
+usermod -d /upward/share/qiuyh   -u 1007
+usermod -d /upward/share/yangx   -u 1008
+usermod -d /upward/share/pany    -u 1009
+usermod -d /upward/share/caoy    -u 1010
+usermod -d /upward/share/yangf   -u 1011
+usermod -d /upward/share/liuxk   -u 1012
+usermod -d /upward/share/xuho    -u 1013
+
+gpasswd -a 
+
+
+
+gpasswd -a wangj  yfb
+gpasswd -a liuzl  yfb
+gpasswd -a xutc   yfb
+gpasswd -a chenzc gcb
+gpasswd -a yanglw gcb
+gpasswd -a zhangzc gcb
+gpasswd -a qiuyh  cwb
+gpasswd -a yangx  zhb
+gpasswd -a pany   zhb
+gpasswd -a caoy   zhb
+gpasswd -a yangf  zhb
+gpasswd -a liuxk  zhb
+gpasswd -a qiugs  itb
+gpasswd -a xuho   xuho
+
+
+
+userdel -r
+
+
+userdel -r wangj 
+userdel -r liuzl 
+userdel -r xutc  
+userdel -r chenzc
+userdel -r yanglw
+userdel -r zhangzc
+userdel -r qiuyh 
+userdel -r yangx 
+userdel -r pany  
+userdel -r caoy  
+userdel -r yangf 
+userdel -r liuxk 
+userdel -r xuho  
+
+
+
+
+[工程部]
+        comment = gcb Drivers
+        path = /upward/share/gcb
+        valid users = @gcb,xuho
+        writable = yes
+		write list = chenzc,xuho
+
+[研发部]
+        comment = yfb Drivers
+        path = /upward/share/yfb
+        valid users = @yfb,xuho
+        writable = yes
+		write list = wangj,xuho
+
+[财务部]
+        comment = cwb Drivers
+        path = /upward/share/cwb
+        valid users = @cwb,xuho
+        writable = yes
+		write list = qiuyh,xuho
+
+[综合部]
+        comment = zhb Drivers
+        path = /upward/share/zhb
+        valid users = @zhb,xuho
+        writable = yes
+		write list = yangx,xuho
+
+
+
+firewall-cmd --permanent --add-service=samba
+firewall-cmd --reload
+systemctl restart firewalld
